@@ -5,29 +5,29 @@ namespace WaveFunctionCollapse.MeshTools
 {
     public static class EdgeDetector
     {
-        public static Edge[] FindMeshEdges(Vector3 axis, Mesh mesh)
+        public static MeshEdge FindMeshEdge(Vector3 direction, Bounds tileBounds, Mesh mesh)
         {
-            var vertices = GetBoundryVertices(axis, mesh);
+            var vertices = GetBoundryVertices(direction, tileBounds, mesh);
             vertices = RemoveDubles(vertices);
 
-            Edge[] result = FindEdges(vertices).ToArray();
+            MeshEdge edge = FindEdge(vertices, direction);
 
-            return result;
+            return edge;
         }
 
-        private static List<Vertex> GetBoundryVertices(Vector3 axis, Mesh mesh)
+        private static List<Vertex> GetBoundryVertices(Vector3 direction, Bounds tileBounds, Mesh mesh)
         {
-            Vector3 meshSize = mesh.bounds.extents;
+            Vector3 tileSize = tileBounds.extents;
 
-            Vector3 axisCenter = Vector3.Project(mesh.bounds.center, axis);
-            Vector3 axisDistance = Vector3.Project(meshSize, axis);
+            Vector3 dirCenterProjection = Vector3.Project(tileBounds.center, direction);
+            Vector3 dirSizeProjection = Vector3.Project(tileSize, direction);
 
-            if (Vector3.Dot(axisDistance, axis) < 0)
+            if (Vector3.Dot(dirSizeProjection, direction) < 0)
             {
-                axisDistance = -axisDistance;
+                dirSizeProjection = -dirSizeProjection;
             }
 
-            axisDistance += axisCenter;
+            dirSizeProjection += dirCenterProjection;
 
             Vector3[] vertices = mesh.vertices;
             int[] triangles = mesh.triangles;
@@ -36,8 +36,8 @@ namespace WaveFunctionCollapse.MeshTools
 
             for (int i = 0; i < vertices.Length; i++)
             {
-                Vector3 vertexDistance = Vector3.Project(vertices[i], axis);
-                if (vertexDistance == axisDistance)
+                Vector3 vertexDistance = Vector3.Project(vertices[i], direction);
+                if (vertexDistance == dirSizeProjection)
                 {
                     Vertex edgeVertex = new Vertex(vertices[i]);
 
@@ -81,9 +81,10 @@ namespace WaveFunctionCollapse.MeshTools
             return result;
         }
 
-        private static List<Edge> FindEdges(List<Vertex> vertices)
+        private static MeshEdge FindEdge(List<Vertex> vertices, Vector3 direction)
         {
-            var edges = new List<Edge>();
+            var edgeVertices = new List<Vector3>();
+            var edges = new List<int>();
 
             for (int i = 0; i < vertices.Count; i++)
             {
@@ -93,13 +94,24 @@ namespace WaveFunctionCollapse.MeshTools
                     common.IntersectWith(vertices[j].triangles);
                     if (common.Count == 1)
                     {
-                        var edge = new Edge(vertices[i].position, vertices[j].position, common.Count);
-                        edges.Add(edge);
+                        Vector3 v1 = vertices[i].position;
+                        Vector3 v2 = vertices[j].position;
+
+                        if (edgeVertices.Contains(v1) == false) edgeVertices.Add(v1);
+                        if (edgeVertices.Contains(v2) == false) edgeVertices.Add(v2);
+
+                        int indexV1 = edgeVertices.IndexOf(v1);
+                        int indexV2 = edgeVertices.IndexOf(v2);
+
+                        edges.Add(indexV1);
+                        edges.Add(indexV2);
                     }
                 }
             }
 
-            return edges;
+            var meshEdge = new MeshEdge(edgeVertices.ToArray(), edges.ToArray(), direction);
+
+            return meshEdge;
         }
 
         private class Vertex
@@ -111,21 +123,6 @@ namespace WaveFunctionCollapse.MeshTools
             {
                 position = pos;
                 triangles = new HashSet<int>();
-            }
-        }
-
-        public struct Edge
-        {
-            public Vector3[] vertices;
-            public int triangles;
-
-            public Edge(Vector3 v1, Vector3 v2, int triangles)
-            {
-                vertices = new Vector3[2];
-                vertices[0] = v1;
-                vertices[1] = v2;
-
-                this.triangles = triangles;
             }
         }
     }
