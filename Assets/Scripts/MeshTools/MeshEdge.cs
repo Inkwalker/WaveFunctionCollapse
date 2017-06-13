@@ -57,17 +57,9 @@ namespace WaveFunctionCollapse.MeshTools
             {
                 Vector3 projected = Vector3.ProjectOnPlane(vertex, direction);
 
-                for (int i = 0; i < 4; i++)
-                {
-                    float angle = i * 90;
-                    Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                int vHash = (int)(projected.sqrMagnitude * 121);
 
-                    Vector3 rotated = rotation * projected;
-
-                    int vHash = (int)(rotated.magnitude * 121);
-
-                    hash += vHash;
-                }
+                hash += vHash;
             }
 
             return hash * 13;
