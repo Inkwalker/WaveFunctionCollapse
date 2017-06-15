@@ -31,9 +31,9 @@ public class EdgeDebuger : MonoBehaviour
         Mesh mesh = meshFilter.sharedMesh;
         Transform transform = meshFilter.transform;
 
-        Gizmos.color = Color.white;
+        //Gizmos.color = Color.white;
 
-        Gizmos.DrawWireCube(transform.TransformPoint(tileBounds.center), tileBounds.size);
+        //Gizmos.DrawWireCube(transform.TransformPoint(tileBounds.center), tileBounds.size);
 
         var edge = EdgeDetector.FindMeshEdge(axis, tileBounds, mesh);
 

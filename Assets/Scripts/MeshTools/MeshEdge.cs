@@ -17,6 +17,7 @@ namespace WaveFunctionCollapse.MeshTools
         public int[] Edges { get { return edges; } }
         public int EdgesCount { get { return edges.Length / 2; } }
         public Vector3 Direction { get { return direction; } }
+        public bool Empty { get { return edges.Length == 0; } }
 
         public MeshEdge(Vector3[] vertices, int[] edges, Vector3 direction)
         {
@@ -46,6 +47,8 @@ namespace WaveFunctionCollapse.MeshTools
 
         public override bool Equals(object obj)
         {
+            //TODO
+
             return base.Equals(obj);
         }
 
