@@ -9,7 +9,7 @@ namespace WaveFunctionCollapse
         Tile[] tiles;
         bool[,,,] field;                        //values are inverted to save time on initialization
 
-        public Wave(int sizeX, int sizeY, int sizeZ ,Tile[] tiles)
+        public Wave(int sizeX, int sizeY, int sizeZ, Tile[] tiles)
         {
             this.tiles = tiles;
             tilesLookup = new Dictionary<Tile, int>();
@@ -23,11 +23,23 @@ namespace WaveFunctionCollapse
             field = new bool[sizeX, sizeY, sizeZ, tiles.Length];
         }
 
+
+        public void SetTileState(Position3D pos, Tile tile, bool possible)
+        {
+            SetTileState(pos.X, pos.Y, pos.Z, tile, possible);
+        }
+
         public void SetTileState(int x, int y, int z, Tile tile, bool possible)
         {
             int tileIndex = tilesLookup[tile];
 
             field[x, y, z, tileIndex] = !possible;
+        }
+
+
+        public int GetPossibleTilesCount(Position3D pos)
+        {
+            return GetPossibleTilesCount(pos.X, pos.Y, pos.Z);
         }
 
         public int GetPossibleTilesCount(int x, int y, int z)
@@ -40,6 +52,12 @@ namespace WaveFunctionCollapse
             }
 
             return result;
+        }
+
+
+        public Tile[] GetPossibleTiles(Position3D pos)
+        {
+            return GetPossibleTiles(pos.X, pos.Y, pos.Z);
         }
 
         public Tile[] GetPossibleTiles(int x, int y, int z)
